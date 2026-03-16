@@ -49,6 +49,26 @@ run "url_with_folder_query" {
   }
 }
 
+run "folder_only_does_not_set_workspace" {
+  command = plan
+
+  variables {
+    agent_id = "foo"
+    folder   = "/home/coder/project"
+    port     = 13337
+  }
+
+  assert {
+    condition     = resource.coder_app.code-server.url == "http://localhost:13337/?folder=%2Fhome%2Fcoder%2Fproject"
+    error_message = "coder_app URL must use folder param, not workspace"
+  }
+
+  assert {
+    condition     = !strcontains(resource.coder_app.code-server.url, "workspace")
+    error_message = "coder_app URL must not contain workspace param when only folder is set"
+  }
+}
+
 run "url_with_workspace_query" {
   command = plan
 
