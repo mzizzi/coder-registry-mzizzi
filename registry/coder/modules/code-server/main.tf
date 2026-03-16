@@ -214,12 +214,12 @@ resource "coder_app" "code-server" {
     "http://localhost:${var.port}/?folder=${urlencode(var.folder)}" :
     "http://localhost:${var.port}/"
   )
-  icon         = "/icon/code.svg"
-  subdomain    = var.subdomain
-  share        = var.share
-  order        = var.order
-  group        = var.group
-  open_in      = var.open_in
+  icon      = "/icon/code.svg"
+  subdomain = var.subdomain
+  share     = var.share
+  order     = var.order
+  group     = var.group
+  open_in   = var.open_in
 
   healthcheck {
     url       = "http://localhost:${var.port}/healthz"
