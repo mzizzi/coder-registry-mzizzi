@@ -84,6 +84,22 @@ module "code-server" {
 }
 ```
 
+### Open a Workspace File
+
+Open a `.code-workspace` file instead of a folder:
+
+```tf
+module "code-server" {
+  count     = data.coder_workspace.me.start_count
+  source    = "registry.coder.com/coder/code-server/coder"
+  version   = "1.4.3"
+  agent_id  = coder_agent.example.id
+  workspace = "/home/coder/project/my.code-workspace"
+}
+```
+
+> **Note**: `workspace` and `folder` cannot be used together.
+
 ### Pass Additional Arguments
 
 You can pass additional command-line arguments to code-server using the `additional_args` variable. For example, to disable workspace trust:

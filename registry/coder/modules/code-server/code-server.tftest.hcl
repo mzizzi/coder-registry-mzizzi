@@ -48,3 +48,52 @@ run "url_with_folder_query" {
     error_message = "coder_app URL must include encoded folder query param"
   }
 }
+
+run "folder_only_does_not_set_workspace" {
+  command = plan
+
+  variables {
+    agent_id = "foo"
+    folder   = "/home/coder/project"
+    port     = 13337
+  }
+
+  assert {
+    condition     = resource.coder_app.code-server.url == "http://localhost:13337/?folder=%2Fhome%2Fcoder%2Fproject"
+    error_message = "coder_app URL must use folder param, not workspace"
+  }
+
+  assert {
+    condition     = !strcontains(resource.coder_app.code-server.url, "workspace")
+    error_message = "coder_app URL must not contain workspace param when only folder is set"
+  }
+}
+
+run "url_with_workspace_query" {
+  command = plan
+
+  variables {
+    agent_id  = "foo"
+    workspace = "/home/coder/project/my.code-workspace"
+    port      = 13337
+  }
+
+  assert {
+    condition     = resource.coder_app.code-server.url == "http://localhost:13337/?workspace=%2Fhome%2Fcoder%2Fproject%2Fmy.code-workspace"
+    error_message = "coder_app URL must include encoded workspace query param"
+  }
+}
+
+run "workspace_and_folder_conflict" {
+  command = plan
+
+  variables {
+    agent_id  = "foo"
+    folder    = "/home/coder/project"
+    workspace = "/home/coder/project/my.code-workspace"
+  }
+
+  expect_failures = [
+    resource.coder_script.code-server
+  ]
+}

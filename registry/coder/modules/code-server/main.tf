@@ -56,6 +56,12 @@ variable "folder" {
   default     = ""
 }
 
+variable "workspace" {
+  type        = string
+  description = "Path to a .code-workspace file to open in code-server."
+  default     = ""
+}
+
 variable "install_prefix" {
   type        = string
   description = "The prefix to install code-server to."
@@ -173,6 +179,7 @@ resource "coder_script" "code-server" {
     USE_CACHED_EXTENSIONS : var.use_cached_extensions,
     EXTENSIONS_DIR : var.extensions_dir,
     FOLDER : var.folder,
+    WORKSPACE : var.workspace,
     AUTO_INSTALL_EXTENSIONS : var.auto_install_extensions,
     ADDITIONAL_ARGS : var.additional_args,
   })
@@ -188,6 +195,11 @@ resource "coder_script" "code-server" {
       condition     = !var.offline || !var.use_cached
       error_message = "Offline and Use Cached can not be used together"
     }
+
+    precondition {
+      condition     = (var.workspace == "" || var.folder == "")
+      error_message = "Set only one of `workspace` or `folder`."
+    }
   }
 }
 
@@ -195,13 +207,19 @@ resource "coder_app" "code-server" {
   agent_id     = var.agent_id
   slug         = var.slug
   display_name = var.display_name
-  url          = "http://localhost:${var.port}/${var.folder != "" ? "?folder=${urlencode(var.folder)}" : ""}"
-  icon         = "/icon/code.svg"
-  subdomain    = var.subdomain
-  share        = var.share
-  order        = var.order
-  group        = var.group
-  open_in      = var.open_in
+  url = (
+    var.workspace != "" ?
+    "http://localhost:${var.port}/?workspace=${urlencode(var.workspace)}" :
+    var.folder != "" ?
+    "http://localhost:${var.port}/?folder=${urlencode(var.folder)}" :
+    "http://localhost:${var.port}/"
+  )
+  icon      = "/icon/code.svg"
+  subdomain = var.subdomain
+  share     = var.share
+  order     = var.order
+  group     = var.group
+  open_in   = var.open_in
 
   healthcheck {
     url       = "http://localhost:${var.port}/healthz"
