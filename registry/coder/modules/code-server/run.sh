@@ -134,7 +134,7 @@ if [ "${AUTO_INSTALL_EXTENSIONS}" = true ]; then
       $CODE_SERVER "$EXTENSION_ARG" --force --install-extension "$extension"
     done
   else
-    # Fallback to folder-based .vscode/extensions.json (existing behavior)
+    # Fallback to folder-based .vscode/extensions.json
     WORKSPACE_DIR="$HOME"
     if [ -n "${FOLDER}" ]; then
       WORKSPACE_DIR="${FOLDER}"
